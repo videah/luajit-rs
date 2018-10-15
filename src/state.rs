@@ -709,6 +709,14 @@ impl State {
             lua_checkstack(self.state, n as c_int) != 0
         }
     }
+
+    /// Moves the top element into the given valid index.
+    pub fn insert(&mut self, idx: c_int) {
+        self.checkstack(1);
+        unsafe {
+            lua_insert(self.state, idx);
+        }
+    }
 }
 
 impl Drop for State {
