@@ -286,6 +286,20 @@ impl State {
         }
     }
 
+    /// Test if the value at `idx` on the stack is nil
+    pub fn is_nil(&mut self, idx: c_int) -> bool {
+        unsafe {
+            lua_isnil(self.state, idx)
+        }
+    }
+
+    /// Test if the value at `idx` on the stack is table
+    pub fn is_table(&mut self, idx: c_int) -> bool {
+        unsafe {
+            lua_istable(self.state, idx)
+        }
+    }
+
     /// Retrieves a string from the Lua stack.
     pub fn to_str(&mut self, idx: c_int) -> Option<&str> {
         let ptr = unsafe {
