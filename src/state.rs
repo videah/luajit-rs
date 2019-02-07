@@ -375,6 +375,17 @@ impl State {
         }
     }
 
+    /// Returns the value on the stack at `idx` as a raw pointer.
+    pub fn to_cdata_pointer(&mut self, idx: c_int) -> Option<*const c_void> {
+        unsafe {
+            if lua_type(self.state, idx) != 10 {
+                None
+            } else {
+                Some(lua_topointer(self.state, idx))
+            }
+        }
+    }
+
     /// Returns the userdata on the top of the Lua stack as a raw pointer
     pub fn to_raw_userdata(&mut self, idx: c_int) -> Option<*mut c_void> {
         if self.is_userdata(idx) {
@@ -451,7 +462,7 @@ impl State {
             name: ptr::null(),
             func: None
         });
-        
+
         match name {
             Some(s) => unsafe {
                 luaL_register(self.state, CString::new(s).unwrap().as_ptr(), fns.as_ptr());
