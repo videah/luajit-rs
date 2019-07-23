@@ -138,3 +138,82 @@ pub fn test_double_sentinel() {
     let res = state.do_string("if test:add(4) ~= 9 then error() end");
     assert_eq!(res, ThreadStatus::Ok);
 }
+
+
+struct C {
+    pub val: i32
+}
+
+impl LuaObject for C {
+    fn name() -> *const i8 {
+        c_str!("C")
+    }
+
+    fn lua_fns() -> Vec<ffi::luaL_Reg> {
+        vec![
+            lua_method!("add", C, C::add),
+            ffi::luaL_Reg {
+                name: std::ptr::null(),
+                func: None
+            }
+        ]
+    }
+
+    fn lua_meta_fns() -> Vec<ffi::luaL_Reg> {
+        vec![
+            lua_func!("__newindex", C::newindex),
+            lua_func!("__tostring", C::tostring),
+            ffi::luaL_Reg {
+                name: std::ptr::null(),
+                func: None
+            }
+        ]
+    }
+}
+
+impl C {
+    fn add(&mut self, state: &mut State) -> c_int {
+        let x = state.to_int(2).unwrap();
+        self.val += x;
+        state.push(self.val);
+
+        1
+    }
+    fn newindex( state: &mut State) -> c_int {
+        let x = state.to_int(3);
+        let st = state.to_str( 2 ).unwrap_or("no value");
+        
+        println!("Newindex with table[ {} ] = {}", st, x.unwrap_or(0));
+
+        0
+    }
+    fn tostring( state: &mut State) -> c_int {
+        state.push( "[test object]" );
+
+        1
+    }
+}
+
+#[test]
+pub fn test_metamethods() {
+    let mut state = State::new();
+    state.open_libs();
+
+    state.push(C {
+        val: 1,
+    });
+
+    state.set_global("test");
+
+    let res = state.do_string("test:add(4)");
+    assert_eq!(res, ThreadStatus::Ok);
+
+    let res = state.do_string("if test:add(4) ~= 9 then error() end");
+    assert_eq!(res, ThreadStatus::Ok);
+
+    let res = state.do_string("test['val'] = 5");
+    assert_eq!(res, ThreadStatus::Ok);
+
+    let res = state.do_string("if tostring(test) ~= '[test object]' then error() end");
+    assert_eq!(res, ThreadStatus::Ok);
+}

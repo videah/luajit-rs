@@ -632,13 +632,19 @@ impl State {
     pub fn register_struct<T>(&mut self) where T: LuaObject {
         unsafe {
             if luaL_newmetatable(self.state, T::name()) == 1 {
-                self.new_table();
-                self.register_fns(None, T::lua_fns());
+                if T::lua_meta_fns().len() > 0 {
+                    self.register_fns(None, T::lua_meta_fns());
+                    //self.push_value(-1);
+                }
+                if  T::lua_fns().len() > 0 {
+                    self.new_table();
+                    self.register_fns(None, T::lua_fns());
 
-                self.push_value(-1);
-                lua_setglobal(self.state, T::name());
+                    self.push_value(-1);
+                    lua_setglobal(self.state, T::name());
 
-                self.set_field(-2, "__index");
+                    self.set_field(-2, "__index");
+                }
             }
         }
     }
@@ -693,6 +699,15 @@ impl State {
     pub fn checkstack(&mut self, n: usize) -> bool {
         unsafe {
             lua_checkstack(self.state, n as c_int) != 0
+        }
+    }
+
+    // Equivalent of `luaL_getmetatable`, pushes the metatable associated with name 
+    // tname onto the stack, if it exists in the registry
+    pub fn getmetatable( &mut self, tname: &str ) {
+        self.checkstack(1);
+        unsafe{
+            luaL_getmetatable( self.state, CString::new( tname).unwrap().as_ptr() );
         }
     }
 }

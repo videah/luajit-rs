@@ -136,4 +136,10 @@ pub trait LuaObject {
     /// Return a list of all Lua functions on this struct. They will
     /// be registered in the metatable automatically.
     fn lua_fns() -> Vec<ffi::luaL_Reg>;
+
+    // Return a list of all Lua metamethods on this struct. They will
+    // be registered in the metatable automatically.
+    fn lua_meta_fns() -> Vec<ffi::luaL_Reg> {
+        vec!()
+    }
 }
