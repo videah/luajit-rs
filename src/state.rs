@@ -634,8 +634,9 @@ impl State {
             if luaL_newmetatable(self.state, T::name()) == 1 {
                 if T::lua_meta_fns().len() > 0 {
                     self.register_fns(None, T::lua_meta_fns());
-                    //self.push_value(-1);
                 }
+                // We check the length before setting the __index metatable so people could implement their
+                // own methamethods by leaving lua_fns empty
                 if  T::lua_fns().len() > 0 {
                     self.new_table();
                     self.register_fns(None, T::lua_fns());
