@@ -58,6 +58,11 @@ impl State {
         }
     }
 
+
+    pub fn get_state(&mut self) -> *mut lua_State {
+        self.state
+    }
+
     /// Opens the Lua standard library on this state.
     /// 
     /// You can use the other `open_*` methods to fine tune
