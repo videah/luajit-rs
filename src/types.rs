@@ -46,7 +46,7 @@ impl <'a> LuaValue for &'a str {
     fn push_val(self, l: *mut ffi::lua_State) {
         let cstr = CString::new(self).unwrap();
         unsafe {
-            ffi::lua_pushstring(l, cstr.as_ptr());
+            ffi::lua_pushstring(l, cstr.as_ptr() as *const _);
         }
     }
 }
@@ -56,7 +56,7 @@ impl LuaValue for String {
         let r: &str = self.as_ref();
         let cstr = CString::new(r).unwrap();
         unsafe {
-            ffi::lua_pushstring(l, cstr.as_ptr());
+            ffi::lua_pushstring(l, cstr.as_ptr() as *const _);
         }
     }
 }

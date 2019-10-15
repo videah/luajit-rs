@@ -32,7 +32,7 @@ extern "C" {
     pub fn luaL_checkany(L: *mut lua_State, narg: c_int);
 
     pub fn luaL_newmetatable(L: *mut lua_State, tname: *const c_schar) -> c_int;
-    pub fn luaL_checkudata(L: *mut lua_State, ud: c_int, tname: *const c_schar) -> *mut c_void;
+    pub fn luaL_checkudata(L: *mut lua_State, ud: c_int, tname: *const c_schar) -> *mut libc::c_void;
 
     pub fn luaL_where(L: *mut lua_State, lvl: c_int);
     pub fn luaL_error(L: *mut lua_State, fmt: *const c_schar, ...) -> c_int;
