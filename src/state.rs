@@ -57,7 +57,7 @@ impl State {
             owned: false,
         }
     }
-    
+
     pub fn get_state(&mut self) -> *mut lua_State {
         self.state
     }
@@ -179,7 +179,7 @@ impl State {
     pub fn do_string(&mut self, s: &str) -> ThreadStatus {
         let cstr = CString::new(s).unwrap();
         unsafe {
-            luaL_dostring(self.state, cstr.as_ptr()).into()
+            luaL_dostring(self.state, cstr.as_ptr() as *const _).into()
         }
     }
 
@@ -258,7 +258,7 @@ impl State {
     pub fn register(&mut self, name: &str, f: LuaFunction) {
         let name = CString::new(name).unwrap();
         unsafe {
-            lua_register(self.state, name.as_ptr(), Some(f));
+            lua_register(self.state, name.as_ptr() as *const _, Some(f));
         }
     }
 
@@ -314,7 +314,7 @@ impl State {
             None
         } else {
             let cstr = unsafe {
-                CStr::from_ptr(ptr)
+                CStr::from_ptr(ptr as *const _)
             };
 
             match cstr.to_str() {
@@ -380,7 +380,7 @@ impl State {
     }
 
     /// Returns the value on the stack at `idx` as a raw pointer.
-    pub fn to_cdata_pointer(&mut self, idx: c_int) -> Option<*const c_void> {
+    pub fn to_cdata_pointer(&mut self, idx: c_int) -> Option<*const libc::c_void> {
         unsafe {
             if lua_type(self.state, idx) != 10 {
                 None
@@ -391,7 +391,7 @@ impl State {
     }
 
     /// Returns the userdata on the top of the Lua stack as a raw pointer
-    pub fn to_raw_userdata(&mut self, idx: c_int) -> Option<*mut c_void> {
+    pub fn to_raw_userdata(&mut self, idx: c_int) -> Option<*mut libc::c_void> {
         if self.is_userdata(idx) {
             unsafe {
                 Some(lua_touserdata(self.state, idx))
@@ -413,7 +413,7 @@ impl State {
     /// and returns a pointer to the userdata object
     pub fn check_userdata_ex<T>(&mut self, idx: c_int, ty: &str) -> Option<*mut T> {
         unsafe {
-            let udata = luaL_checkudata(self.state, idx, CString::new(ty).unwrap().as_ptr());
+            let udata = luaL_checkudata(self.state, idx, CString::new(ty).unwrap().as_ptr() as *const _);
 
             if udata == ptr::null_mut() {
                 None
@@ -441,7 +441,7 @@ impl State {
     /// named `name`
     pub fn set_global(&mut self, name: &str) {
         unsafe {
-            lua_setglobal(self.state, CString::new(name).unwrap().as_ptr());
+            lua_setglobal(self.state, CString::new(name).unwrap().as_ptr() as *const _);
         }
     }
 
@@ -452,7 +452,7 @@ impl State {
     /// `idx` and `v` is the value at the top of the stack
     pub fn set_field(&mut self, idx: i32, name: &str) {
         unsafe {
-            lua_setfield(self.state, idx, CString::new(name).unwrap().as_ptr());
+            lua_setfield(self.state, idx, CString::new(name).unwrap().as_ptr() as *const _);
         }
     }
 
@@ -469,7 +469,7 @@ impl State {
 
         match name {
             Some(s) => unsafe {
-                luaL_register(self.state, CString::new(s).unwrap().as_ptr(), fns.as_ptr());
+                luaL_register(self.state, CString::new(s).unwrap().as_ptr() as *const _, fns.as_ptr());
             },
             None => unsafe {
                 luaL_register(self.state, ptr::null(), fns.as_ptr());
@@ -562,7 +562,7 @@ impl State {
     pub fn get_global(&mut self, name: &str) {
         self.checkstack(1);
         unsafe {
-            lua_getglobal(self.state, CString::new(name).unwrap().as_ptr());
+            lua_getglobal(self.state, CString::new(name).unwrap().as_ptr() as *const _);
         }
     }
 
@@ -571,7 +571,7 @@ impl State {
     pub fn get_field(&mut self, idx: i32, name: &str) {
         self.checkstack(1);
         unsafe {
-            lua_getfield(self.state, idx, CString::new(name).unwrap().as_ptr());
+            lua_getfield(self.state, idx, CString::new(name).unwrap().as_ptr() as *const _);
         }
     }
 
@@ -585,7 +585,7 @@ impl State {
 
     /// Allocates a new Lua userdata block, and returns the pointer
     /// to it. The returned pointer is owned by the Lua state.
-    pub fn new_raw_userdata(&mut self, sz: usize) -> *mut c_void {
+    pub fn new_raw_userdata(&mut self, sz: usize) -> *mut libc::c_void {
         self.checkstack(1);
         unsafe {
             let new_ptr = lua_newuserdata(self.state, sz);
@@ -737,7 +737,7 @@ impl State {
     pub fn getmetatable( &mut self, tname: &str ) {
         self.checkstack(1);
         unsafe {
-            luaL_getmetatable(self.state, CString::new(tname).unwrap().as_ptr());
+            luaL_getmetatable(self.state, CString::new(tname).unwrap().as_ptr() as *const _);
         }
     }
 
