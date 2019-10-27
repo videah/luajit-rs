@@ -1,5 +1,5 @@
 #![allow(non_camel_case_types)]
-use libc::{c_int, c_uchar, c_schar, c_double, libc::c_void, size_t, ptrdiff_t};
+use libc::{c_int, c_uchar, c_schar, c_double, c_void, size_t, ptrdiff_t};
 use super::lauxlib::luaL_newstate;
 use std::ptr;
 
