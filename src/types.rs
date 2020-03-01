@@ -6,7 +6,7 @@ use super::State;
 /// Represents any value that can be pushed onto the Lua stack
 pub trait LuaValue {
     /// `push_val` should push the value of this type onto the top
-    /// of the stack of Lua state `l`.
+    /// of the stack on Lua state `l`.
     fn push_val(self, l: *mut ffi::lua_State);
 }
 
