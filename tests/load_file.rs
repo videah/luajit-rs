@@ -58,7 +58,7 @@ fn load_file() {
     let mut state = State::new();
     state.open_libs();
     state.register_struct::<Point2D>();
-    state.load_file(Path::new("./tests/lua/test1.lua")).unwrap();
+    state.load_file("./tests/lua/test1.lua").unwrap();
     
     let res = state.pcall(0, 0, 0);
     assert_eq!(res, Ok(()));
@@ -69,7 +69,7 @@ fn do_file() {
     let mut state = State::new();
     state.open_libs();
     state.register_struct::<Point2D>();
-    let res = state.do_file(Path::new("./tests/lua/test1.lua"));
+    let res = state.do_file("./tests/lua/test1.lua");
     
     assert_eq!(res, Ok(()));
 }
@@ -79,7 +79,7 @@ fn do_bad_file() {
     let mut state = State::new();
     state.open_libs();
     
-    let res = state.do_file(Path::new("./tests/lua/test2.lua"));
+    let res = state.do_file("./tests/lua/test2.lua");
 
     assert!(res.is_err());
 }

@@ -40,7 +40,7 @@ pub use types::{LuaFunction, LuaObject};
 
 pub use libc::c_int;
 
-/// This macro is used to wrap a rust function in an `extern "C"` trampoline
+/// This macro is used to wrap a Rust function in an `extern "C"` trampoline
 /// to automatically pass a [`State`](state/struct.State.html) struct as the first
 /// argument instead of a `lua_State` raw pointer
 /// 
@@ -100,7 +100,7 @@ macro_rules! lua_func {
 
 /// This macro can be used to automatically generate a `luaL_Reg`
 /// struct for the provided method, with name `name`. It automatically
-/// reads an instances of struct `$st` from userdata and provides it as
+/// reads an instance of struct `$st` from userdata and provides it as
 /// an argument.
 #[macro_export]
 macro_rules! lua_method {

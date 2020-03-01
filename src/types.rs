@@ -5,8 +5,8 @@ use super::State;
 
 /// Represents any value that can be pushed onto the Lua stack
 pub trait LuaValue {
-    /// `push_val` should push the value of this type the the top
-    /// of the stack on Lua state `l`.
+    /// `push_val` should push the value of this type onto the top
+    /// of the stack of Lua state `l`.
     fn push_val(self, l: *mut ffi::lua_State);
 }
 
@@ -124,11 +124,11 @@ pub type LuaFunction = unsafe extern "C" fn(L: *mut ffi::lua_State) -> c_int;
 
 /// Structs can implement this trait to enable easy interaction with
 /// the Lua stack. Any struct implementing this trait can be pushed
-/// to the Lua stack as userdata.
+/// on the Lua stack as userdata.
 pub trait LuaObject {
     /// The string returned by this method will serve as the name
     /// of this type's metatable in the Lua registry. A good value
-    /// is the name of the type LuaObject is being implemented for.
+    /// is the name of the type for which LuaObject is being implemented.
     /// 
     /// The `c_str!` macro can be used to declare C string constants.
     fn name() -> *const i8;
@@ -137,8 +137,8 @@ pub trait LuaObject {
     /// be registered in the metatable automatically.
     fn lua_fns() -> Vec<ffi::luaL_Reg>;
 
-    // Return a list of all Lua metamethods on this struct. They will
-    // be registered in the metatable automatically.
+    /// Return a list of all Lua metamethods on this struct. They will
+    /// be registered in the metatable automatically.
     fn lua_meta_fns() -> Vec<ffi::luaL_Reg> {
         vec!()
     }

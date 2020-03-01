@@ -39,7 +39,7 @@ pub struct State {
 }
 
 impl State {
-    /// Calls LUA C API to instantiate a new Lua state.
+    /// Calls Lua C API to instantiate a new Lua state.
     pub fn new() -> State {
         unsafe {
             State {
@@ -156,7 +156,7 @@ impl State {
         }
     }
 
-    /// Pops a value from the top of the stack
+    /// Pops `n` values from the top of the stack
     pub fn pop(&mut self, n: i32) {
         unsafe {
             lua_pop(self.state, n);
@@ -183,8 +183,7 @@ impl State {
         }
     }
 
-    /// Maps to `lua_call`, calls the function on the top of the
-    /// stack.
+    /// Maps to `lua_call`, calls the function on the top of the stack.
     pub fn call(&mut self, nargs: i32, nres: i32) {
         unsafe {
             lua_call(self.state, nargs, nres);
@@ -346,7 +345,7 @@ impl State {
         }
     }
 
-    /// Return the value on the stack at `idx` as an bool.
+    /// Return the value on the stack at `idx` as a bool.
     pub fn to_bool(&mut self, idx: c_int) -> Option<bool> {
         if self.is_bool(idx) {
             unsafe {
@@ -357,7 +356,7 @@ impl State {
         }
     }
 
-    /// Return the value on the stack at `idx` as an float.
+    /// Return the value on the stack at `idx` as a float.
     pub fn to_float(&mut self, idx: c_int) -> Option<f32> {
         if self.is_number(idx) {
             unsafe {
@@ -368,7 +367,7 @@ impl State {
         }
     }
 
-    /// Return the value on the stack at `idx` as an double.
+    /// Return the value on the stack at `idx` as a double.
     pub fn to_double(&mut self, idx: c_int) -> Option<f64> {
         if self.is_number(idx) {
             unsafe {
@@ -477,7 +476,7 @@ impl State {
         }
     }
 
-    /// Copys the value at `idx` to the top of the stack
+    /// Copies the value at `idx` to the top of the stack
     pub fn push_value(&mut self, idx: i32) {
         self.checkstack(1);
         unsafe {
@@ -567,7 +566,7 @@ impl State {
     }
 
     /// Gets a value `name` from the table on the stack at `idx` and
-    /// and pushes the fetched value to the top of the stack.
+    /// pushes the fetched value to the top of the stack.
     pub fn get_field(&mut self, idx: i32, name: &str) {
         self.checkstack(1);
         unsafe {
@@ -597,9 +596,9 @@ impl State {
         }
     }
 
-    /// Allocates a new Lua userdata block of size `sizeof(T)` for
-    /// use to store Rust objects on the Lua stack. The returned
-    /// pointer is owned by the Lua state.
+    /// Allocates a new Lua userdata block of size `sizeof(T)` to store
+    /// Rust objects on the Lua stack. The returned pointer is owned
+    /// by the Lua state.
     ///
     /// # Examples
     ///
@@ -697,9 +696,9 @@ impl State {
 
     /// Maps to `luaL_loadfile`, this method validates that the file exists
     /// before passing it into the Lua C API.
-    pub fn load_file(&mut self, path: &Path) -> Result<(), (ThreadStatus, String)> {
-        if path.is_file() {
-            let p = path.canonicalize().unwrap();
+    pub fn load_file(&mut self, path: impl AsRef<Path>) -> Result<(), (ThreadStatus, String)> {
+        if path.as_ref().is_file() {
+            let p = path.as_ref().canonicalize().unwrap();
             let full_path = p.to_string_lossy();
 
             unsafe {
@@ -718,7 +717,7 @@ impl State {
 
     /// Equivalent of `luaL_dofile`, loads a file and then immediately executes
     /// it with `pcall`, returning the result.
-    pub fn do_file(&mut self, path: &Path) -> Result<(), (ThreadStatus, String)> {
+    pub fn do_file(&mut self, path: impl AsRef<Path>) -> Result<(), (ThreadStatus, String)> {
         self.load_file(path).and_then(|_| {
             self.pcall(0, LUA_MULTIRET, 0)
         })
